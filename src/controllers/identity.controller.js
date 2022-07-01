@@ -11,7 +11,7 @@ const getNames = catchAsync(async (req, res) => {
 const getPrimaryName = catchAsync(async (req, res) => {
   const primaryName = await identityService.getPrimaryName(req.query.address);
 
-  return apiResponse.successResponseWithData(res, 'success', primaryName);
+  return apiResponse.successResponseWithData(res, 'success', `${primaryName}.orai`);
 });
 
 const getDetail = catchAsync(async (req, res) => {

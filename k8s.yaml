@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: ens-domain-backend
-          image: kawaiiislands/ens-domain-backend:1.0.0
+          image: kawaiiislands/ens-domain-backend:1.0.1
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
