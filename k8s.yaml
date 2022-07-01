@@ -1,0 +1,73 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ens-domain-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ens-domain-backend
+  revisionHistoryLimit: 5
+  template:
+    metadata:
+      labels:
+        app: ens-domain-backend
+    spec:
+      containers:
+        - name: ens-domain-backend
+          image: kawaiiislands/ens-domain-backend:1.0.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                secretKeyRef:
+                  name: ens-domain-backend.env
+                  key: NODE_ENV
+            - name: PORT
+              valueFrom:
+                secretKeyRef:
+                  name: ens-domain-backend.env
+                  key: PORT
+            - name: HTTP_PROVIDER
+              valueFrom:
+                secretKeyRef:
+                  name: ens-domain-backend.env
+                  key: HTTP_PROVIDER
+      imagePullSecrets:
+        - name: docker-secret
+      restartPolicy: Always
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ens-domain-backend
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      protocol: TCP
+  selector:
+    app: ens-domain-backend
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ens-domain-backend
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: developers.kawaii.global
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/ens-domain"
+            backend:
+              service:
+                name: ens-domain-backend
+                port:
+                  number: 3000

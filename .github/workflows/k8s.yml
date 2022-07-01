@@ -1,0 +1,52 @@
+name: Deploy to Kubernetes Cluster
+
+on:
+  push:
+    branches:
+      - 'master'
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y apt-transport-https ca-certificates curl
+      - run: curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      - run: echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y kubectl
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/marketplace/actions/build-and-push-docker-images
+      - name: Checkout files
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ens-domain-backend:1.0.0
+
+  deploy:
+    name: Deploy
+    needs: [build,setup]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - run: echo  "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+      - name: Deloy server
+        run: kubectl --kubeconfig=kubeconfig.yaml  apply -f k8s.yaml
