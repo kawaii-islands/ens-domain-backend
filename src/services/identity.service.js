@@ -43,7 +43,7 @@ const getNamesFromAddress = async (address) => {
   );
 
   const expires = await Promise.all(ids.map((id) => web3Service.nameExpires(id)));
-  return ids.map((_, idx) => ({ name: `${names[idx]}.orai`, expire: expires[idx] }));
+  return ids.map((_, idx) => ({ name: `${names[idx]}`, expire: expires[idx] }));
 };
 
 /**
