@@ -6,7 +6,7 @@ on:
       - 'master'
 jobs:
   setup:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - run: sudo apt-get update
       - run: sudo apt-get install -y apt-transport-https ca-certificates curl
@@ -17,7 +17,7 @@ jobs:
 
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       # https://github.com/marketplace/actions/build-and-push-docker-images
       - name: Checkout files
@@ -42,7 +42,7 @@ jobs:
   deploy:
     name: Deploy
     needs: [build,setup]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout
