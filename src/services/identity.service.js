@@ -4,6 +4,7 @@ const Web3 = require('web3');
 const contentHashNew = require('content-hash');
 const web3Util = require('../utils/web3');
 const web3Service = require('./web3.service');
+const { Name } = require('../models');
 
 /**
  * Get node hash from id
@@ -192,9 +193,20 @@ const getDetail = async (name) => {
   };
 };
 
+/**
+ * Query for names
+ * @param {Object} filter - Mongo filter
+ * @param {Object} options - Query options
+ * @returns {Promise<QueryResult>}
+ */
+const queryNames = async (filter, options) => {
+  return Name.paginate(filter, options);
+};
+
 module.exports = {
   idToNodeHash,
   getNamesFromAddress,
   getPrimaryName,
   getDetail,
+  queryNames,
 };

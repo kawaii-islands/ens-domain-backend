@@ -1,5 +1,6 @@
 const Web3 = require('web3');
 const catchAsync = require('../utils/catchAsync');
+const pick = require('../utils/pick');
 const apiResponse = require('../utils/apiResponse');
 const { identityService } = require('../services');
 
@@ -25,8 +26,16 @@ const getNameDetail = catchAsync(async (req, res) => {
   return apiResponse.successResponseWithData(res, 'success', detail);
 });
 
+const getControlledNames = catchAsync(async (req, res) => {
+  const { address } = req.query;
+  const options = pick(req.query, ['page', 'limit']);
+  const { results: names, ...paginationOptions } = await identityService.queryNames({ owner: address }, options);
+  return apiResponse.successResponseWithData(res, 'success', names, paginationOptions);
+});
+
 module.exports = {
   getNames,
   getPrimaryName,
   getNameDetail,
+  getControlledNames,
 };
