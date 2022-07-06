@@ -28,21 +28,21 @@ const idToNodeHash = (id) => {
  * @returns {Promise<Object[]>}
  */
 const getNamesFromAddress = async (address) => {
-  const balance = +(await web3Service.balanceOf(address));
+  const balance = +(await web3Service.BASE.call('balanceOf', address));
   const ids = await Promise.all(
     Array(balance)
       .fill()
-      .map((_, idx) => web3Service.tokenOfOwnerByIndex(address, idx))
+      .map((_, idx) => web3Service.BASE.call('tokenOfOwnerByIndex', address, idx))
   );
 
   const names = await Promise.all(
     ids.map((id) => {
       const nodeHash = idToNodeHash(id);
-      return web3Service.nodeHash2Name(nodeHash);
+      return web3Service.CONTROLLER.call('nodeHash2Name', nodeHash);
     })
   );
 
-  const expires = await Promise.all(ids.map((id) => web3Service.nameExpires(id)));
+  const expires = await Promise.all(ids.map((id) => web3Service.BASE.call('nameExpires', id)));
   return ids.map((_, idx) => ({ name: `${names[idx]}`, expire: expires[idx] }));
 };
 
@@ -52,8 +52,8 @@ const getNamesFromAddress = async (address) => {
  * @returns {Promise<string>}
  */
 const getPrimaryName = async (address) => {
-  const node = await web3Service.node(address);
-  return web3Service.name(node);
+  const node = await web3Service.REVERSE_REGISTRAR.call('node', address);
+  return web3Service.RESOLVER.call('name', node);
 };
 
 /**
@@ -62,7 +62,7 @@ const getPrimaryName = async (address) => {
  * @returns {Promise<boolean>}
  */
 const isAvailable = async (name) => {
-  return web3Service.available(name);
+  return web3Service.CONTROLLER.call('available', name);
 };
 
 const nameToId = (name) => {
@@ -87,7 +87,7 @@ const createNodeHashFromName = (name) => {
  */
 const getResolver = async (name) => {
   const nodeHash = createNodeHashFromName(name);
-  return web3Service.resolver(nodeHash);
+  return web3Service.ENS.call('resolver', nodeHash);
 };
 
 /**
@@ -97,7 +97,7 @@ const getResolver = async (name) => {
  */
 const getController = async (name) => {
   const nodeHash = createNodeHashFromName(name);
-  return web3Service.owner(nodeHash);
+  return web3Service.ENS.call('owner', nodeHash);
 };
 
 /**
@@ -107,12 +107,12 @@ const getController = async (name) => {
  */
 const getNameExpire = async (name) => {
   const id = nameToId(name);
-  return web3Service.nameExpires(id);
+  return web3Service.BASE.call('nameExpires', id);
 };
 
 const getRegistrant = async (name) => {
   const id = nameToId(name);
-  return web3Service.ownerOf(id);
+  return web3Service.BASE.call('ownerOf', id);
 };
 
 /**
@@ -125,7 +125,7 @@ const getAddressesOfName = async (name) => {
   // 60: is ETH
   // 0: is ORAI
   // 1: is ORAIDEX
-  const addresses = await Promise.all([60, 0, 1].map((el) => web3Service.addr(nodeHash, el)));
+  const addresses = await Promise.all([60, 0, 1].map((el) => web3Service.RESOLVER.call('addr', nodeHash, el)));
 
   return addresses.map((address, idx) => {
     if (idx === 0) return address;
@@ -135,7 +135,7 @@ const getAddressesOfName = async (name) => {
 
 const getContentHashOfName = async (name) => {
   const nodeHash = createNodeHashFromName(name);
-  const content = await web3Service.contenthash(nodeHash);
+  const content = await web3Service.RESOLVER.call('contenthash', nodeHash);
   if (!content) {
     return '';
   }
@@ -160,7 +160,7 @@ const getListRecords = async (name) => {
     'eth.ens.delegate',
   ];
   const nodeHash = createNodeHashFromName(name);
-  const records = await Promise.all(listRecords.map((el) => web3Service.text(nodeHash, el)));
+  const records = await Promise.all(listRecords.map((el) => web3Service.RESOLVER.call('text', nodeHash, el)));
 
   const recordInput = {};
   listRecords.forEach((key, idx) => {
@@ -193,6 +193,7 @@ const getDetail = async (name) => {
 };
 
 module.exports = {
+  idToNodeHash,
   getNamesFromAddress,
   getPrimaryName,
   getDetail,
