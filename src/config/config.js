@@ -8,7 +8,7 @@ const envVarsSchema = Joi.object()
   .keys({
     NODE_ENV: Joi.string().valid('production', 'development', 'test').required(),
     PORT: Joi.number().default(3000),
-    // MONGODB_URL: Joi.string().required().description('Mongo DB url'),
+    MONGODB_URL: Joi.string().required().description('Mongo DB url'),
     HTTP_PROVIDER: Joi.string().required().description('subnetwork http provider'),
   })
   .unknown();
@@ -22,14 +22,14 @@ if (error) {
 module.exports = {
   env: envVars.NODE_ENV,
   port: envVars.PORT,
-  // mongoose: {
-  //   url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
-  //   options: {
-  //     useCreateIndex: true,
-  //     useNewUrlParser: true,
-  //     useUnifiedTopology: true,
-  //   },
-  // },
+  mongoose: {
+    url: envVars.MONGODB_URL + (envVars.NODE_ENV === 'test' ? '-test' : ''),
+    options: {
+      useCreateIndex: true,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    },
+  },
   provider: {
     subnet: {
       http: envVars.HTTP_PROVIDER,
