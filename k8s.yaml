@@ -35,6 +35,11 @@ spec:
                 secretKeyRef:
                   name: ens-domain-backend.env
                   key: HTTP_PROVIDER
+            - name: MONGODB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ens-domain-backend.env
+                  key: MONGODB_URL
       imagePullSecrets:
         - name: docker-secret
       restartPolicy: Always
