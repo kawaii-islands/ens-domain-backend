@@ -25,9 +25,9 @@ const getControlledNames = {
       .lowercase()
       .regex(/^0x[a-fA-F\d]{40}$/)
       .message('{{#label}} must be a valid evm address'),
+    page: Joi.number().integer(),
+    limit: Joi.number().integer(),
   }),
-  page: Joi.number().integer(),
-  limit: Joi.number().integer(),
 };
 
 module.exports = {

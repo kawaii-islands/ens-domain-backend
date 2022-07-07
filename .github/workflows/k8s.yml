@@ -37,7 +37,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ens-domain-backend:1.0.4
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ens-domain-backend:1.0.5
 
   deploy:
     name: Deploy
