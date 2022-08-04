@@ -26,8 +26,8 @@ const run = async () => {
   try {
     const track = await Custom.findOne({ key: trackKey });
     if (track) {
-      skip.blockNumber = track.blockNumber;
-      skip.logIndex = track.logIndex;
+      skip.blockNumber = track.value.blockNumber;
+      skip.logIndex = track.value.logIndex;
     }
 
     let page = 1;
@@ -66,7 +66,7 @@ const run = async () => {
             continue;
           }
           const owner = `0x${log.topics[3].substring(26)}`;
-          await Name.updateOne({ name }, { owner }, { upsert: true });
+          await Name.updateOne({ name }, { owner }, { upsert: true, session });
         }
         // update track
         const lastLog = newData.slice(-1)[0];
@@ -80,6 +80,7 @@ const run = async () => {
           },
           {
             upsert: true,
+            session,
           }
         );
 
